@@ -98,7 +98,7 @@ class MainActivity : ComponentActivity() {
                         .setValue(userData)
                         .addOnSuccessListener {
                             val i  = Intent(this,ContactActivity::class.java)
-                            i.putExtra("name",userData.name)
+                            i.putExtra("uid",userData.uid)
                             startActivity(i)
                         }
                 }else{
@@ -107,20 +107,4 @@ class MainActivity : ComponentActivity() {
             }
     }
 
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    FirebaseExampleTheme {
-        Greeting("Android")
-    }
 }
