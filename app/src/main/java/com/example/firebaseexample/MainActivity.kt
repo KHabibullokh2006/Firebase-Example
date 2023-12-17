@@ -24,7 +24,10 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
-import com.google.firebase.database.database
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.ValueEventListener
+import com.google.firebase.database.getValue
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 
@@ -45,7 +48,7 @@ class MainActivity : ComponentActivity() {
                         .requestIdToken(getString(R.string.client_id))
                         .requestEmail()
                         .build()
-                    val mGoogleSignInClient = GoogleSignIn.getClient(this,gso)
+                    val mGoogleSignInClient = GoogleSignIn.getClient(this, gso)
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
@@ -55,7 +58,7 @@ class MainActivity : ComponentActivity() {
                     ) {
                         Button(onClick = {
                             val signInIntent = mGoogleSignInClient.signInIntent
-                            startActivityForResult(signInIntent,1)
+                            startActivityForResult(signInIntent, 1)
                         }) {
                             Text(text = "Sign In with Google")
                         }
@@ -74,37 +77,60 @@ class MainActivity : ComponentActivity() {
     @Deprecated("Deprecated in Java")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == 1){
+        if (requestCode == 1) {
             val task = GoogleSignIn.getSignedInAccountFromIntent(data)
             try {
                 val account = task.getResult(ApiException::class.java)
                 firebaseAuthWithGoogle(account.idToken)
                 Log.d("TAG", "onActivityResult: ")
-            }catch (e:ApiException){
+            } catch (e: ApiException) {
                 Log.d("TAG", "error: $e")
             }
         }
     }
 
     private fun firebaseAuthWithGoogle(idToken: String?) {
-        val credential = GoogleAuthProvider.getCredential(idToken,null)
+        val credential = GoogleAuthProvider.getCredential(idToken, null)
         auth.signInWithCredential(credential)
-            .addOnCompleteListener(this){task ->
-                if (task.isSuccessful){
+            .addOnCompleteListener(this) { task ->
+                if (task.isSuccessful) {
                     val user = auth.currentUser
-                    Log.d("User", user?.displayName.toString())
-                    val userData = User(user?.displayName,user?.uid, user?.photoUrl.toString())
-                    myRef.child("contact").child(user?.uid?: "")
-                        .setValue(userData)
-                        .addOnSuccessListener {
-                            val i  = Intent(this,ContactActivity::class.java)
-                            i.putExtra("uid",userData.uid)
-                            startActivity(i)
+//                    Log.d("User", user?.displayName.toString())
+                    val userData = User(user?.displayName, user?.uid, user?.photoUrl.toString())
+                    var b = true
+
+                    myRef.addValueEventListener(object : ValueEventListener {
+                        override fun onDataChange(snapshot: DataSnapshot) {
+                            val children = snapshot.children
+                            children.forEach {
+                                val u = it.getValue(User::class.java)
+                                if (u != null && u.uid == userData.uid) {
+                                    b = false
+                                }
+                            }
+                            if (b) {
+                                setUser(userData)
+                            }
                         }
-                }else{
+
+                        override fun onCancelled(error: DatabaseError) {
+                            Log.d("TAG", "onCancelled: ${error.message}")
+                        }
+                    })
+
+                } else {
                     Log.d("TAG", "firebaseAuthWithGoogle: Task Unsuccessful")
                 }
             }
     }
 
+    private fun setUser(userData: User) {
+        myRef.child("contact").child(userData.uid ?: "")
+            .setValue(userData)
+            .addOnSuccessListener {
+                val i = Intent(this, ContactActivity::class.java)
+                i.putExtra("uid", userData.uid)
+                startActivity(i)
+            }
+    }
 }
