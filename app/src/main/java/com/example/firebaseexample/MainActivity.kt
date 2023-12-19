@@ -13,11 +13,10 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.firebaseexample.model.User
 import com.example.firebaseexample.ui.theme.FirebaseExampleTheme
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
@@ -27,7 +26,6 @@ import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
-import com.google.firebase.database.getValue
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 
@@ -125,7 +123,7 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun setUser(userData: User) {
-        myRef.child("contact").child(userData.uid ?: "")
+        myRef.child("contacts").child(userData.uid ?: "")
             .setValue(userData)
             .addOnSuccessListener {
                 val i = Intent(this, ContactActivity::class.java)
