@@ -32,7 +32,7 @@ import com.google.firebase.ktx.Firebase
 class MainActivity : ComponentActivity() {
     private lateinit var auth: FirebaseAuth
     val database = Firebase.database
-    val myRef = Firebase.database.reference
+    val myRef = database.reference
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -80,9 +80,8 @@ class MainActivity : ComponentActivity() {
             try {
                 val account = task.getResult(ApiException::class.java)
                 firebaseAuthWithGoogle(account.idToken)
-                Log.d("TAG", "onActivityResult: ")
             } catch (e: ApiException) {
-                Log.d("TAG", "error: $e")
+                Log.d("TAG", "error: ${e.message}")
             }
         }
     }
@@ -103,6 +102,7 @@ class MainActivity : ComponentActivity() {
                             children.forEach {
                                 val u = it.getValue(User::class.java)
                                 if (u != null && u.uid == userData.uid) {
+
                                     b = false
                                 }
                             }
@@ -112,9 +112,13 @@ class MainActivity : ComponentActivity() {
                         }
 
                         override fun onCancelled(error: DatabaseError) {
-                            Log.d("TAG", "onCancelled: ${error.message}")
+                            Log.d("TAG", "Database error: ${error.message}")
                         }
                     })
+
+                    val i = Intent(this, ContactActivity::class.java)
+                    i.putExtra("uid", userData.uid)
+                    startActivity(i)
 
                 } else {
                     Log.d("TAG", "firebaseAuthWithGoogle: Task Unsuccessful")
