@@ -25,6 +25,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
@@ -32,7 +33,7 @@ import com.google.firebase.ktx.Firebase
 class MainActivity : ComponentActivity() {
     private lateinit var auth: FirebaseAuth
     val database = Firebase.database
-    val myRef = database.reference
+    val myRef = FirebaseDatabase.getInstance().reference.push().child("contacts")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -60,11 +61,6 @@ class MainActivity : ComponentActivity() {
                         }) {
                             Text(text = "Sign In with Google")
                         }
-                        Button(onClick = {
-                            mGoogleSignInClient.signOut()
-                        }) {
-                            Text(text = "Sign Out")
-                        }
                     }
                 }
             }
@@ -88,6 +84,7 @@ class MainActivity : ComponentActivity() {
 
     private fun firebaseAuthWithGoogle(idToken: String?) {
         val credential = GoogleAuthProvider.getCredential(idToken, null)
+        val shared = MyShared.getInstance(this)
         auth.signInWithCredential(credential)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
@@ -102,12 +99,11 @@ class MainActivity : ComponentActivity() {
                             children.forEach {
                                 val u = it.getValue(User::class.java)
                                 if (u != null && u.uid == userData.uid) {
-
                                     b = false
                                 }
                             }
                             if (b) {
-                                setUser(userData)
+                                setUser(userData,shared)
                             }
                         }
 
@@ -115,7 +111,7 @@ class MainActivity : ComponentActivity() {
                             Log.d("TAG", "Database error: ${error.message}")
                         }
                     })
-
+                    shared.setUser(userData)
                     val i = Intent(this, ContactActivity::class.java)
                     i.putExtra("uid", userData.uid)
                     startActivity(i)
@@ -126,10 +122,10 @@ class MainActivity : ComponentActivity() {
             }
     }
 
-    private fun setUser(userData: User) {
-        myRef.child("contacts").child(userData.uid ?: "")
-            .setValue(userData)
+    private fun setUser(userData: User, shared: MyShared) {
+        myRef.child(userData.uid?: "").setValue(userData)
             .addOnSuccessListener {
+                shared.setUser(userData)
                 val i = Intent(this, ContactActivity::class.java)
                 i.putExtra("uid", userData.uid)
                 startActivity(i)

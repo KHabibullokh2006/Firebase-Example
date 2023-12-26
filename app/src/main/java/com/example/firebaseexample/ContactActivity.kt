@@ -20,9 +20,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.rounded.ExitToApp
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -62,7 +65,6 @@ class ContactActivity : ComponentActivity() {
                 ) {
 
                     val uid = intent.getStringExtra("uid")
-                    Log.d("UID", uid.toString())
 
 
                     val userList = remember {
@@ -90,43 +92,41 @@ class ContactActivity : ComponentActivity() {
                         }
                     })
 
-                    Column(Modifier.fillMaxSize().padding(10.dp).fillMaxHeight()) {
+                    Column(
+                        Modifier
+                            .fillMaxSize()
+                            .padding(10.dp)
+                            .fillMaxHeight()) {
                         LazyColumn(Modifier.padding(8.dp)) {
                             items(userList) {
                                 Row(
                                     Modifier
-                                        .fillMaxWidth(9f)
-                                        .padding(10.dp)
-                                        .height(50.dp)
+                                        .fillMaxWidth()
+                                        .padding(17.dp)
                                         .clickable {
                                             val i = Intent(
                                                 this@ContactActivity,
                                                 ChatActivity::class.java
                                             )
                                             i.putExtra("uid", uid)
-                                            i.putExtra("user",it)
                                             i.putExtra("useruid", it.uid)
                                             startActivity(i)
-                                        },
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    AsyncImage(
-                                        model = ImageRequest.Builder(LocalContext.current)
-                                            .data(it.photo)
-                                            .crossfade(true)
-                                            .build(),
-                                        placeholder = painterResource(R.drawable.send),
-                                        contentDescription = ("no image"),
-                                        contentScale = ContentScale.Crop,
-                                        modifier = Modifier.clip(CircleShape)
+                                        }) {
+                                    Icon(
+                                        imageVector = Icons.Default.Person,
+                                        contentDescription = "Icon",
+                                        Modifier.size(32.dp),
+                                        tint = Color.White,
                                     )
-                                    Text(
-                                        text = it.name ?: "",
-                                        Modifier.padding(start = 12.dp),
-                                        fontSize = 22.sp
-                                    )
+                                    Text(fontSize = 24.sp, text = it.name.toString(), color = Color.White)
                                 }
                             }
+                        }
+                        Button(onClick = {
+                            val i = Intent(this@ContactActivity,SettingsActivity::class.java)
+                            startActivity(i)
+                        }) {
+                            Text(text = "Settings", fontSize = 20.sp, color = Color.White)
                         }
                     }
 

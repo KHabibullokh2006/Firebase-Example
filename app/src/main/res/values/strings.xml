@@ -4,4 +4,5 @@
     <string name="title_activity_contact">ContactActivity</string>
     <string name="title_activity_splash">SplashActivity</string>
     <string name="title_activity_chat">ChatActivity</string>
+    <string name="title_activity_settings">SettingsActivity</string>
 </resources>
