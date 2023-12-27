@@ -1,6 +1,7 @@
 package com.example.firebaseexample
 
 import android.content.Intent
+import android.graphics.drawable.Icon
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -21,14 +22,17 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.rounded.ExitToApp
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -79,9 +83,9 @@ class ContactActivity : ComponentActivity() {
                             val users = snapshot.children
                             users.forEach {
                                 val user = it.getValue(User::class.java)
-                                Log.d("TAG-C1",user?.name.toString())
+                                Log.d("TAG-C1", user?.name.toString())
                                 if (user != null && user.uid != uid) {
-                                    Log.d("TAG-C2",user.name.toString())
+                                    Log.d("TAG-C2", user.name.toString())
                                     userList.add(user)
                                 }
                             }
@@ -96,7 +100,8 @@ class ContactActivity : ComponentActivity() {
                         Modifier
                             .fillMaxSize()
                             .padding(10.dp)
-                            .fillMaxHeight()) {
+                            .fillMaxHeight()
+                    ) {
                         LazyColumn(Modifier.padding(8.dp)) {
                             items(userList) {
                                 Row(
@@ -118,51 +123,28 @@ class ContactActivity : ComponentActivity() {
                                         Modifier.size(32.dp),
                                         tint = Color.White,
                                     )
-                                    Text(fontSize = 24.sp, text = it.name.toString(), color = Color.White)
+                                    Text(
+                                        fontSize = 24.sp,
+                                        text = it.name.toString(),
+                                        color = Color.White
+                                    )
                                 }
                             }
                         }
-                        Button(onClick = {
-                            val i = Intent(this@ContactActivity,SettingsActivity::class.java)
-                            startActivity(i)
-                        }) {
-                            Text(text = "Settings", fontSize = 20.sp, color = Color.White)
+
+                        FloatingActionButton(
+                            modifier = Modifier.align(Alignment.End), onClick = {
+                                val i = Intent(this@ContactActivity, SettingsActivity::class.java)
+                                startActivity(i)
+                            },
+                            containerColor = Color(80, 182, 205),
+                            contentColor = Color.White
+                        ) {
+                            Icon(imageVector = Icons.Default.Settings, "Settings")
                         }
                     }
-
-
                 }
             }
         }
     }
-    @Composable
-    private fun ContactTopBar() {
-        Row(
-            Modifier
-                .height(60.dp)
-                .background(color = Color.Blue)
-                .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            IconButton(
-                onClick={
-
-                },
-                modifier = Modifier
-                    .clip(CircleShape)
-                    .size(60.dp)
-            ){
-                Icon(Icons.Rounded.Settings, contentDescription = "")
-            }
-            Text(text = "Telegram", color = Color.White, fontSize = 25.sp)
-            Button(onClick = {
-
-            }, Modifier.size(60.dp)) {
-                Icon(Icons.Rounded.ExitToApp, contentDescription = "")
-            }
-        }
-    }
-
 }
-

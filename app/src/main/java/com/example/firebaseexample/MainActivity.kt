@@ -33,7 +33,7 @@ import com.google.firebase.ktx.Firebase
 class MainActivity : ComponentActivity() {
     private lateinit var auth: FirebaseAuth
     val database = Firebase.database
-    val myRef = FirebaseDatabase.getInstance().reference.push().child("contacts")
+    val myRef = FirebaseDatabase.getInstance().reference.child("contacts")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
